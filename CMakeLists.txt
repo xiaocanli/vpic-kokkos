@@ -10,7 +10,7 @@ cmake_policy(SET CMP0074 NEW)
 # VPIC project configuration
 #~----------------------------------------------------------------------------~#
 
-project(vpic CXX)
+project(vpic LANGUAGES CXX C)
 
 #------------------------------------------------------------------------------#
 # If a C++14 compiler is available, then set the appropriate flags
@@ -70,6 +70,8 @@ option(VPIC_ENABLE_VECTORIZATION "Enable improved vectorization for CPUs" OFF)
 
 option(VPIC_ENABLE_ACCUMULATOR "Enable explicit accumulators for better performnace on CPUs" OFF)
 
+option(USE_HDF5 "Enable HDF5 for use during IO. VPIC does not help you install HDF5" OFF)
+
 add_definitions(-DUSE_KOKKOS)
 set(VPIC_CPPFLAGS "${VPIC_CPPFLAGS} -DUSE_KOKKOS") # Set it here for ./deck/ files
 
@@ -128,6 +130,36 @@ if (OPENMP_FOUND)
 else()
   message("OpenMP not found...")
 endif()
+
+#------------------------------------------------------------------------------#
+# HDF5
+#------------------------------------------------------------------------------#
+
+if(USE_HDF5)
+    message("----------------------------")
+    # Enable HDF5, and the relevant defines
+    find_package(HDF5 REQUIRED COMPONENTS C)
+    if (NOT HDF5_IS_PARALLEL)
+        message(FATAL_ERROR "HDF5 Parallel support is required: ${HDF5_IS_PARALLEL}")
+    endif()
+    add_definitions(-DVPIC_ENABLE_HDF5)
+
+    # the hdf5 var we need changes based on version...
+    string(REPLACE ";" " " string_libraries "${HDF5_C_LIBRARY}")
+    set(VPIC_CXX_LIBRARIES "${VPIC_CXX_LIBRARIES} ${string_libraries}")
+
+    if ("${HDF5_C_LIBRARY}" STREQUAL "")
+        string(REPLACE ";" " " string_libraries "${HDF5_C_LIBRARIES}")
+        set(VPIC_CXX_LIBRARIES "${VPIC_CXX_LIBRARIES} ${string_libraries}")
+    endif()
+
+    include_directories(${HDF5_INCLUDE_DIRS})
+
+    # Add includes to ./bin/vpic for users who need the headers in their decks
+    string(REPLACE ";" " -I" string_includes "${HDF5_INCLUDE_DIRS}")
+    set(VPIC_CXX_FLAGS "-I${string_includes} ${VPIC_CXX_FLAGS}")
+
+endif(USE_HDF5)
 
 # Allow files to be references from the root, (eg #include "src/vpic/vpic.h")
 include_directories(${PROJECT_SOURCE_DIR})
@@ -233,7 +265,9 @@ set(KOKKOS_COMPILE_OPTIONS_FILE ${PROJECT_BINARY_DIR}/kokkos_compile_options)
 file(GENERATE OUTPUT ${KOKKOS_CORE_INCLUDES_FILE} CONTENT "${KOKKOS_INCLUDE_DIRS}")
 file(GENERATE OUTPUT ${KOKKOS_CONTAINER_INCLUDES_FILE} CONTENT "${KOKKOS_INCLUDE_CONTAINERS}")
 string(REPLACE ";" " " kokkos_compile_options "${KOKKOS_COMPILE_OPTIONS}")
-file(GENERATE OUTPUT ${KOKKOS_COMPILE_OPTIONS_FILE} CONTENT "${kokkos_compile_options}")
+file(GENERATE OUTPUT ${KOKKOS_COMPILE_OPTIONS_FILE}
+    CONTENT "${kokkos_compile_options}"
+    CONDITION $<COMPILE_LANGUAGE:CXX>)
 
 #file(GENERATE OUTPUT ${KOKKOS_CORE_LIB_FILE} CONTENT "${KOKKOS_LIB_DIRS}")
 #file(GENERATE OUTPUT ${KOKKOS_CONTAINER_LIB_FILE} CONTENT "${KOKKOS_LIB_CONTAINERS}")
@@ -447,7 +481,7 @@ else()
   install(TARGETS vpic LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 endif()
 target_include_directories(vpic INTERFACE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(vpic ${VPIC_EXPOSE} ${MPI_CXX_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${CMAKE_DL_LIBS} Kokkos::kokkos)
+target_link_libraries(vpic ${VPIC_EXPOSE} ${MPI_CXX_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${CMAKE_DL_LIBS} ${HDF5_C_LIBRARIES} Kokkos::kokkos)
 target_compile_options(vpic ${VPIC_EXPOSE} ${MPI_C_COMPILE_FLAGS} ${KOKKOS_COMPILE_OPTIONS})
 
 macro(build_a_vpic name deck)

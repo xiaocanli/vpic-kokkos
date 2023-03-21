@@ -63,7 +63,7 @@ int vpic_simulation::advance(void)
   }
 
   // TODO: implement
-  //TIC user_particle_collisions(); TOC( user_particle_collisions, 1 );
+  TIC user_particle_collisions(); TOC( user_particle_collisions, 1 );
 
   // DEVICE function - Touches particles, particle movers, accumulators, interpolators
   LIST_FOR_EACH( sp, species_list )

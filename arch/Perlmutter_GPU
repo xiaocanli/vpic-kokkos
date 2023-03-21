@@ -1,0 +1,130 @@
+#! /usr/bin/env bash
+#~----------------------------------------------------------------------------~#
+# placeholder
+#~----------------------------------------------------------------------------~#
+#
+#------------------------------------------------------------------------------#
+# Choose support for HDF5 output for fields and hydro
+#------------------------------------------------------------------------------#
+# One of the two available options must be chosen. Valid options are ON and
+# OFF.
+#
+# If SET_HDF5=OFF, the output of fields and hydro are in binary format.
+#
+# If SET_HDF5=ON, the output of fields and hydro are in HDF5 format.
+#------------------------------------------------------------------------------#
+# SET_HDF5="OFF"
+SET_HDF5="ON"
+
+#------------------------------------------------------------------------------#
+# Get the path to the project from which this script was called
+#------------------------------------------------------------------------------#
+
+src_dir="${0%/*}/.."
+
+#------------------------------------------------------------------------------#
+# Check required environment variables
+#------------------------------------------------------------------------------#
+
+#module purge
+#module load PrgEnv-gnu
+#module load cmake cuda cpe-cuda
+module load cmake gpu
+if [ "$SET_HDF5" = "ON" ]
+then
+    module load cray-hdf5-parallel
+fi
+module list 2>&1 | tee modules.txt
+
+#------------------------------------------------------------------------------#
+# Call CMake command
+#------------------------------------------------------------------------------#
+
+# The flag -rdynamic removes warnings of the form:
+# Unable to find a safely writable symbol that corresponds to address 432af0
+# (the closest match was "(null)" from "./lpi_2d_F6_test.Linux").  Writing out
+# the raw address instead and keeping my fingers crossed.
+
+# In the Cray environment, there is a bit of confusion about compilers and
+# wrappers and such.  I've worked around it with some ad hoc CMake magic, but
+# this line might be helpful when troubleshooting (run it when compiling user
+# decks too).
+#export NVCC_WRAPPER_DEFAULT_COMPILER=$(which CC)
+
+CRAYPE_LINK_TYPE=dynamic cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_INTEGRATED_TESTS=ON \
+  -DENABLE_UNIT_TESTS=ON \
+  -DBUILD_INTERNAL_KOKKOS=ON \
+  -DENABLE_KOKKOS_CUDA=ON \
+  -DKokkos_ARCH_AMPERE80=ON \
+  -DKokkos_ARCH_ZEN3=ON \
+  -DKokkos_ENABLE_PTHREAD=OFF \
+  -DKokkos_ENABLE_OPENMP=ON \
+  -DCMAKE_CXX_COMPILER="CC" \
+  -DCMAKE_CXX_FLAGS="-g -rdynamic"\
+  -DUSE_HDF5=$SET_HDF5 \
+  $src_dir
+
+#------------------------------------------------------------------------------#
+# Choose number of parallel make processes for build.
+#------------------------------------------------------------------------------#
+# If NJ variable is not defined, "make" will perform a parallel build using
+# maximum number of processors on the compilation machine.
+#
+# If using VERBOSE = 1 and NJ > 1, verbose output will be garbled by many
+# processes writing to STDOUT at the same time and will be difficult to
+# interpret.
+#
+# When using VERBOSE = 1,  use of NJ = 1 is recommended.
+#
+# The default is to use a modest number of processes in the parallel build.
+#
+# Comment out default below to use all processors on compilation machine.
+#------------------------------------------------------------------------------#
+
+#NJ=8
+NJ=4
+
+#------------------------------------------------------------------------------#
+# Choose verbosity of "make" output.
+#------------------------------------------------------------------------------#
+# Setting VERBOSE = 1 causes "make" to output commands it is executing.
+#
+# This information is useful if debugging a failed build.
+#
+# Setting VERBOSE = 0 or leaving VERBOSE undefined results in a quiet build.
+#
+# The default is a quiet build.
+#------------------------------------------------------------------------------#
+
+SET_VERBOSE=0
+#SET_VERBOSE=1
+
+#------------------------------------------------------------------------------#
+# Call make command.
+#------------------------------------------------------------------------------#
+# Notes:
+#
+# In general, it is necessary to call the "make" command within this script
+# because the module environment has been configured within this script.
+#
+# Setting VERBOSE=1 causes "make" to output the commands it is executing.
+# This information is useful if debugging a failed build.
+#
+# If the NJ variable is not defined, "make" will perform a parallel build
+# using maximum number of processors on the compilation machine. If using
+# VERBOSE=1, the verbose output will be garbled by many processes writing
+# to STDOUT at the same time and will be difficult to interpret. When using
+# VERBOSE=1, it can be helpful to also use NJ=1.
+#------------------------------------------------------------------------------#
+
+make -j $NJ VERBOSE=$SET_VERBOSE
+
+#------------------------------------------------------------------------------#
+# Done.
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+# vim: syntax=sh
+#------------------------------------------------------------------------------#

@@ -688,9 +688,11 @@ void vpic_simulation::dump_hydro_hdf5( const char *speciesname,
     );
 
     // The legacy synchronize is actually a bit faster
-    synchronize_hydro_array_kokkos(hydro_array);
+    //synchronize_hydro_array_kokkos(hydro_array);
 
     hydro_array->copy_to_host();
+
+    synchronize_hydro_array( hydro_array );
 
     char hname[256];
     char hydro_scratch[128];
@@ -1659,11 +1661,11 @@ vpic_simulation::hydro_dump( const char * speciesname,
   );
 
   // The legacy synchronize is actually a bit faster
-  synchronize_hydro_array_kokkos(hydro_array);
+  //synchronize_hydro_array_kokkos(hydro_array);
 
   hydro_array->copy_to_host();
 
-  /* synchronize_hydro_array( hydro_array ); */
+  synchronize_hydro_array( hydro_array );
 
   // convenience
   const size_t istride(dumpParams.stride_x);

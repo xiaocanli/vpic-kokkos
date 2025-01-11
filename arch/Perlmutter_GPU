@@ -63,7 +63,7 @@ CRAYPE_LINK_TYPE=dynamic cmake \
   -DKokkos_ENABLE_OPENMP=ON \
   -DCMAKE_CXX_COMPILER="CC" \
   -DCMAKE_CXX_FLAGS="-g -rdynamic"\
-  -DUSE_HDF5=$SET_HDF5 \
+  -DVPIC_ENABLE_HDF5=$SET_HDF5 \
   $src_dir
 
 #------------------------------------------------------------------------------#
@@ -98,8 +98,8 @@ NJ=4
 # The default is a quiet build.
 #------------------------------------------------------------------------------#
 
-SET_VERBOSE=0
-#SET_VERBOSE=1
+#SET_VERBOSE=0
+SET_VERBOSE=8
 
 #------------------------------------------------------------------------------#
 # Call make command.

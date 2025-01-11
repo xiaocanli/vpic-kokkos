@@ -70,7 +70,7 @@ option(VPIC_ENABLE_VECTORIZATION "Enable improved vectorization for CPUs" OFF)
 
 option(VPIC_ENABLE_ACCUMULATOR "Enable explicit accumulators for better performnace on CPUs" OFF)
 
-option(USE_HDF5 "Enable HDF5 for use during IO. VPIC does not help you install HDF5" OFF)
+option(VPIC_ENABLE_HDF5 "Enable HDF5 for use during IO. VPIC does not help you install HDF5" OFF)
 
 add_definitions(-DUSE_KOKKOS)
 set(VPIC_CPPFLAGS "${VPIC_CPPFLAGS} -DUSE_KOKKOS") # Set it here for ./deck/ files
@@ -137,10 +137,10 @@ else()
 endif()
 
 #------------------------------------------------------------------------------#
-# HDF5
+# HDF5 Output for fields, hydro, and particles
 #------------------------------------------------------------------------------#
 
-if(USE_HDF5)
+if(VPIC_ENABLE_HDF5)
     message("----------------------------")
     # Enable HDF5, and the relevant defines
     find_package(HDF5 REQUIRED COMPONENTS C)

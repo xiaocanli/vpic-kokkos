@@ -76,7 +76,7 @@ void BinaryDump::dump_fields(
   if (rank == 0) MESSAGE(("Dumping fields to \"%s\"", fbase));
 
   if (ftag)
-    snprintf(fname, max_filename_bytes, "%s.%lld.%i", fbase, step, rank);
+    snprintf(fname, max_filename_bytes, "%s.%ld.%i", fbase, step, rank);
   else
     snprintf(fname, max_filename_bytes, "%s.%i", fbase, rank);
 
@@ -147,7 +147,7 @@ void BinaryDump::dump_hydro(
     MESSAGE(("Dumping \"%s\" hydro fields to \"%s\"", sp->name, fbase));
 
   if (ftag)
-    snprintf(fname, max_filename_bytes, "%s.%lld.%i", fbase, step, rank);
+    snprintf(fname, max_filename_bytes, "%s.%ld.%i", fbase, step, rank);
   else
     snprintf(fname, max_filename_bytes, "%s.%i", fbase, rank);
   FileIOStatus status = fileIO.open(fname, io_write);
@@ -208,7 +208,7 @@ void BinaryDump::dump_particles(
     MESSAGE(("Dumping \"%s\" particles to \"%s\"", sp->name, fbase));
 
   if (ftag)
-    snprintf(fname, max_filename_bytes, "%s.%lld.%i", fbase, step, rank);
+    snprintf(fname, max_filename_bytes, "%s.%ld.%i", fbase, step, rank);
   else
     snprintf(fname, max_filename_bytes, "%s.%i", fbase, rank);
   FileIOStatus status = fileIO.open(fname, io_write);
@@ -273,7 +273,7 @@ void BinaryDump::field_dump(
 
   // Create directory for this time step
   char timeDir[max_filename_bytes];
-  int ret = snprintf(timeDir, max_filename_bytes, "%s/T.%lld", dumpParams.baseDir, step);
+  int ret = snprintf(timeDir, max_filename_bytes, "%s/T.%ld", dumpParams.baseDir, step);
   if (ret < 0) {
       ERROR(("snprintf failed"));
   }
@@ -281,7 +281,7 @@ void BinaryDump::field_dump(
 
   // Open the file for output
   char filename[max_filename_bytes];
-  ret = snprintf(filename, max_filename_bytes, "%s/T.%lld/%s.%lld.%d", dumpParams.baseDir, step,
+  ret = snprintf(filename, max_filename_bytes, "%s/T.%ld/%s.%ld.%d", dumpParams.baseDir, step,
           dumpParams.baseFileName, step, rank);
   if (ret < 0) {
       ERROR(("snprintf failed"));
@@ -426,12 +426,12 @@ void BinaryDump::hydro_dump(
 {
   // Create directory for this time step
   char timeDir[max_filename_bytes];
-  snprintf(timeDir, max_filename_bytes, "%s/T.%lld", dumpParams.baseDir, step);
+  snprintf(timeDir, max_filename_bytes, "%s/T.%ld", dumpParams.baseDir, step);
   FileUtils::makeDirectory(timeDir);
 
   // Open the file for output
   char filename[max_filename_bytes];
-  int ret = snprintf( filename, max_filename_bytes, "%s/T.%lld/%s.%lld.%d", dumpParams.baseDir, step,
+  int ret = snprintf( filename, max_filename_bytes, "%s/T.%ld/%s.%ld.%d", dumpParams.baseDir, step,
            dumpParams.baseFileName, step, rank );
   if (ret < 0) {
       ERROR(("snprintf failed"));
@@ -624,11 +624,11 @@ void HDF5Dump::dump_fields(
   // create the directory and sub-directory
   sprintf(field_scratch, "./%s", "fields_hdf5");
   FileUtils::makeDirectory(field_scratch);
-  sprintf(subfield_scratch, "%s/T.%lld/", field_scratch, step);
+  sprintf(subfield_scratch, "%s/T.%ld/", field_scratch, step);
   FileUtils::makeDirectory(subfield_scratch);
 
   // create the file
-  sprintf(fname, "%s/%s_%lld.h5", subfield_scratch, "fields", step);
+  sprintf(fname, "%s/%s_%ld.h5", subfield_scratch, "fields", step);
   double el1 = uptime();
   hid_t plist_id = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_fapl_mpio(plist_id, MPI_COMM_WORLD, MPI_INFO_NULL);
@@ -636,7 +636,7 @@ void HDF5Dump::dump_fields(
   H5Pclose(plist_id);
 
   // create the group for the time step
-  sprintf(fname, "Timestep_%lld", step);
+  sprintf(fname, "Timestep_%ld", step);
   hid_t group_id = H5Gcreate(file_id, fname, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   el1 = uptime() - el1;
@@ -825,17 +825,17 @@ void HDF5Dump::dump_hydro(
   // create the directory and sub-directory
   sprintf(hydro_scratch, "./%s", "hydro_hdf5");
   FileUtils::makeDirectory(hydro_scratch);
-  sprintf(subhydro_scratch, "%s/T.%lld/", hydro_scratch, step);
+  sprintf(subhydro_scratch, "%s/T.%ld/", hydro_scratch, step);
   FileUtils::makeDirectory(subhydro_scratch);
 
-  sprintf(hname, "%s/hydro_%s_%lld.h5", subhydro_scratch, sp->name, step);
+  sprintf(hname, "%s/hydro_%s_%ld.h5", subhydro_scratch, sp->name, step);
   double el1 = uptime();
   hid_t plist_id = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_fapl_mpio(plist_id, MPI_COMM_WORLD, MPI_INFO_NULL);
   hid_t file_id = H5Fcreate(hname, H5F_ACC_TRUNC, H5P_DEFAULT, plist_id);
   H5Pclose(plist_id);
 
-  sprintf(hname, "Timestep_%lld", step);
+  sprintf(hname, "Timestep_%ld", step);
   hid_t group_id = H5Gcreate(file_id, hname, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   el1 = uptime() - el1;
@@ -1011,12 +1011,12 @@ void HDF5Dump::dump_particles(
   // Create target directory and subdirectory for the timestep
   sprintf(particle_scratch, "./%s", "particle_hdf5");
   FileUtils::makeDirectory(particle_scratch);
-  sprintf(subparticle_scratch, "%s/T.%lld/", particle_scratch, step);
+  sprintf(subparticle_scratch, "%s/T.%ld/", particle_scratch, step);
   FileUtils::makeDirectory(subparticle_scratch);
 
   // open HDF5 file for species
-  sprintf(fname, "%s/%s_%lld.h5", subparticle_scratch, sp->name, step);
-  sprintf(group_name, "/Timestep_%lld", step);
+  sprintf(fname, "%s/%s_%ld.h5", subparticle_scratch, sp->name, step);
+  sprintf(group_name, "/Timestep_%ld", step);
   double el1 = uptime();
 
   hid_t plist_id = H5Pcreate(H5P_FILE_ACCESS);
@@ -1171,7 +1171,7 @@ void HDF5Dump::dump_particles(
 
   char meta_fname[256];
 
-  sprintf(meta_fname, "%s/grid_metadata_%s_%lld.h5", subparticle_scratch, sp->name, step);
+  sprintf(meta_fname, "%s/grid_metadata_%s_%ld.h5", subparticle_scratch, sp->name, step);
 
   double meta_el1 = uptime();
 

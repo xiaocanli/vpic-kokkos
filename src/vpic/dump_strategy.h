@@ -9,8 +9,8 @@
 #include <vector>
 
 // VPIC headers
-#include "../util/io/FileIO.h"
 #include "../util/util_base.h"
+#include "../util/io/FileIO.h"
 #include "../util/io/FileUtils.h"
 #include "../field_advance/field_advance.h"
 #include "../sf_interface/sf_interface.h"
@@ -49,13 +49,13 @@ public:
 
   virtual void dump_fields(
       const char *fbase,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array,
       int ftag) = 0;
   virtual void dump_hydro(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,
@@ -63,19 +63,19 @@ public:
       int ftag) = 0;
   virtual void dump_particles(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       interpolator_array_t *interpolator_array,
       int ftag) = 0;
   virtual void field_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array) = 0;
   virtual void hydro_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,
@@ -98,13 +98,13 @@ public:
   // TODO: now we pass rank and step, ftag has odd semantics
   void dump_fields(
       const char *fbase,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array,
       int ftag);
   void dump_hydro(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,
@@ -112,19 +112,19 @@ public:
       int ftag);
   void dump_particles(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       interpolator_array_t *interpolator_array,
       int ftag);
   void field_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array);
   void hydro_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,
@@ -348,13 +348,13 @@ public:
 
   void dump_fields(
       const char *fbase,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array,
       int ftag);
   void dump_hydro(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,
@@ -362,19 +362,19 @@ public:
       int ftag);
   void dump_particles(
       const char *fbase,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       interpolator_array_t *interpolator_array,
       int ftag);
   void field_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       grid_t *grid,
       field_array_t *field_array);
   void hydro_dump(
       DumpParameters& dumpParams,
-      int step,
+      int64_t step,
       species_t *sp,
       grid_t *grid,
       hydro_array_t *hydro_array,

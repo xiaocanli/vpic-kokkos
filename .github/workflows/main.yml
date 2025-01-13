@@ -34,13 +34,12 @@ jobs:
     - name: make external
       run: cmake --build build
     - name: make check
-      steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-python@v5
-          with:
-            python-version: '3.13' 
-            cache: 'pip'
-        - run: pip install numpy h5py
+      uses: actions/checkout@v4
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+      run: pip install numpy h5py
       run: ctest --output-on-failure
       working-directory: build
     - name: configure with internal

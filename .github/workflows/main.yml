@@ -28,23 +28,16 @@ jobs:
         cmake -B build -DCMAKE_INSTALL_PREFIX=$HOME/kokkos -DCMAKE_CXX_STANDARD=17
         cmake --build build --parallel 2
         cmake --install build
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      name: Install Python
-      with:
-        python-version: '3.13'
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy h5py
     #- uses: actions/checkout@v2
     - name: configure with external
       run: cmake -B build -DCMAKE_PREFIX_PATH="$HOME/kokkos" -DENABLE_UNIT_TESTS=ON -DENABLE_INTEGRATED_TESTS=ON -DVPIC_ENABLE_HDF5=ON -DCMAKE_CXX_FLAGS="-rdynamic -fno-strict-aliasing"
     - name: make external
       run: cmake --build build
     - name: make check
-      run: ctest --output-on-failure
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade numpy h5py
+        ctest --output-on-failure
       working-directory: build
     - name: configure with internal
       run: cmake -B build_internal -DBUILD_INTERNAL_KOKKOS=ON -DENABLE_UNIT_TESTS=ON -DENABLE_INTEGRATED_TESTS=ON -DVPIC_ENABLE_HDF5=ON -DCMAKE_CXX_FLAGS="-rdynamic -fno-strict-aliasing"

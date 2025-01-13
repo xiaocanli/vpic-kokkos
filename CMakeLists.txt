@@ -164,7 +164,7 @@ if(VPIC_ENABLE_HDF5)
     string(REPLACE ";" " -I" string_includes "${HDF5_INCLUDE_DIRS}")
     set(VPIC_CXX_FLAGS "-I${string_includes} ${VPIC_CXX_FLAGS}")
 
-endif(USE_HDF5)
+endif(VPIC_ENABLE_HDF5)
 
 # Allow files to be references from the root, (eg #include "src/vpic/vpic.h")
 include_directories(${PROJECT_SOURCE_DIR})

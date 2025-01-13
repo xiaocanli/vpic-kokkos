@@ -21,26 +21,35 @@ Here, I use Perlmutter@NERSC machine as an example.
 How to change the deck to use HDF5?
 -----------------------------------
 
-- For any deck, add these to near the top of the deck \```c++ // Whether
-  to use HDF5 format for dumping fields and hydro #define DUMP_WITH_HDF5
+- For any deck, add these to near the top of the deck
 
-  #ifdef DUMP_WITH_HDF5 // Deck only works if VPIC was build with HDF
-  support. Check for that: #ifndef VPIC_ENABLE_HDF5 #error
-  “VPIC_ENABLE_HDF5” is required #endif #endif \``\`
+.. code-block:: c++
+   
+   // Whether to use HDF5 format for dumping fields and hydro
+   #define DUMP_WITH_HDF5
+   #ifdef DUMP_WITH_HDF5 // Deck only works if VPIC was build with HDF support. Check for that:
+   #ifndef VPIC_ENABLE_HDF5
+   #error “VPIC_ENABLE_HDF5” is required
+   #endif
+   #endif
 
-- Add these to the end of ``begin_initialization { }`` \```c++ #ifdef
-  DUMP_WITH_HDF5 // For writing XDMF file when using HDF5 dump
-  field_interval = global->fields_interval; hydro_interval =
-  global->ehydro_interval;
+- Add these to the end of ``begin_initialization { }``
 
-  ::
+.. code-block:: c++
 
-     enable_hdf5_dump();
+   #ifdef DUMP_WITH_HDF5 // For writing XDMF file when using HDF5 dump
+      field_interval = global->fields_interval;
+      hydro_interval = global->ehydro_interval;
+      enable_hdf5_dump();
+   #endif
 
-  #endif
-  :literal:`Remember to load \`HDF5\` module before compiling and running. On Perlmutter,`\ sh
-  module load cray-hdf5-parallel \``\` Then, we can compile and run the
-  deck as usual.
+Remember to load HDF5 module before compiling and running. On Perlmutter,
+
+::
+   
+   module load cray-hdf5-parallel
+
+Then, we can compile and run the deck as usual.
 
 How to analyze the data?
 ------------------------
@@ -136,7 +145,7 @@ write your own scripts. For example,
        plt.imshow(Bx.T, origin="lower")
        plt.show()
 
-It reads and plot :math:`B_x`. Reading other variables is similar. After
+It reads and plot Bx. Reading other variables is similar. After
 reading into the memory, the rest will be the same. You can still use
 most of your analysis code. If the data is really large (e.g., in 3D
 simulations), we use ParaView or VisIt to visualize the data. In

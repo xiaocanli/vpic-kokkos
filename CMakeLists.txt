@@ -56,6 +56,8 @@ option(ENABLE_KOKKOS_OPENMP "Enable Kokkos OpenMP" ON)
 
 option(ENABLE_KOKKOS_CUDA "Enable Kokkos CUDA" OFF)
 
+option(ENABLE_KOKKOS_HIP "Enable Kokkos HIP" OFF)
+
 option(BUILD_INTERNAL_KOKKOS "Have VPIC build it's own Kokkos rather than look in $CMAKE_PREFIX_PATH" OFF)
 
 option(VPIC_DUMP_ENERGIES "If the code should dump energies everytimestep for debugging" OFF)
@@ -118,7 +120,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 string(REPLACE ";" " " string_libraries "${MPI_CXX_LIBRARIES} ${MPI_C_LIBRARIES}")
-set(VPIC_CXX_LIBRARIES "${string_libraries}")
+set(VPIC_CXX_LIBRARIES "${VPIC_CXX_LIBRARIES} ${string_libraries}")
 
 #------------------------------------------------------------------------------#
 # OpenMP
@@ -148,6 +150,7 @@ if(VPIC_ENABLE_HDF5)
         message(FATAL_ERROR "HDF5 Parallel support is required: ${HDF5_IS_PARALLEL}")
     endif()
     add_definitions(-DVPIC_ENABLE_HDF5)
+    set(VPIC_CPPFLAGS "${VPIC_CPPFLAGS} -DVPIC_ENABLE_HDF5")
 
     # the hdf5 var we need changes based on version...
     string(REPLACE ";" " " string_libraries "${HDF5_C_LIBRARY}")
@@ -215,6 +218,27 @@ if(ENABLE_KOKKOS_CUDA)
 
   else()
     message("CUDA not found and options not changed")
+  endif()
+endif()
+
+if(ENABLE_KOKKOS_HIP)
+  find_package(HIP QUIET)
+  if (HIP_FOUND)
+    add_definitions(-DENABLE_KOKKOS_HIP)
+    set(Kokkos_ENABLE_HIP ON "Use HIP with Kokkos")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --expt-extended-lambda")
+
+    # turn off -std=gnu++ to avoid error: identifier "__float128" is undefined issue
+    # see https://github.com/UoB-HPC/BabelStream/issues/16
+    set(CMAKE_CXX_EXTENSIONS OFF)
+
+    # Don't use intel intrinsics if we are using HIP
+    option(USE_V4_ALTIVEC "Enable V4 Altivec" OFF)
+    option(USE_V4_PORTABLE "Enable V4 Portable" OFF)
+    option(USE_V4_SSE "Enable V4 SSE" OFF)
+
+  else()
+    message("HIP not found and options not changed")
   endif()
 endif()
 

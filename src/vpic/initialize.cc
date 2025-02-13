@@ -96,7 +96,8 @@ vpic_simulation::initialize( int argc,
   TIC user_diagnostics(); TOC( user_diagnostics, 1 );
 
   if( rank()==0 ) MESSAGE(( "Initialization complete" ));
-  update_profile( rank()==0 ); // Let the user know how initialization went
+  //update_profile( rank()==0 ); // Let the user know how initialization went
+  update_profile_meanminmax( rank()==0 );
 }
 
 
@@ -104,5 +105,6 @@ void
 vpic_simulation::finalize( void ) {
   barrier();
   //Kokkos::finalize();
-  update_profile( rank()==0 );
+  //update_profile( rank()==0 );
+  update_profile_meanminmax( rank()==0 );
 }

@@ -362,7 +362,8 @@ int vpic_simulation::advance(void)
   // Print out status
   if( (status_interval>0) && ((step() % status_interval)==0) ) {
       if( rank()==0 ) MESSAGE(( "Completed step %i of %i", step(), num_step ));
-      update_profile( rank()==0 );
+      //update_profile( rank()==0 );
+      update_profile_meanminmax( rank()==0 );
   }
 
   // Let the user compute diagnostics
